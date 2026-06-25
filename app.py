@@ -37,9 +37,17 @@ if st.button("Generate Diagnostic Risk Report", type="primary"):
             final_output = compiled_graph.invoke(initial_state)
             
             # Layout UI sections
-            col1, col2 = st.columns(2)
+            col1, col2 = st.columns([1, 2])
             with col1:
                 st.metric(label="Calculated Fragility Index Metric", value=f"{final_output['risk_score']} / 10.0")
+            with col2:
+                st.info(
+                    "**What this means:**\n"
+                    "The **Fragility Index (0-10)** is a weighted composite score reflecting a node's overall risk exposure: "
+                    "**40% Climate Physical Hazards** (grounded in localized environmental data) and "
+                    "**60% Geopolitical & Regulatory Risks** (computed from World Bank macroeconomic indices and partner trade volumes). "
+                    "A higher score suggests greater vulnerability and operational/research friction."
+                )
             
             st.subheader("📋 Executive Mitigation Strategy Summary")
             st.markdown(final_output["final_synthesis"])
