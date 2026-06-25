@@ -13,8 +13,9 @@ st.caption("Powered by Multi-Agent LangGraph System Structures")
 
 # Collect user constraints
 target_input = st.text_input(
-    "Key Business Node or Sourcing Dependency to Evaluate:", 
-    placeholder="e.g., Critical Semiconductor Manufacturing Centers in Hsinchu, Taiwan"
+    "**Key Business Node, Sourcing Dependency, or Research Target to Evaluate:**", 
+    placeholder="e.g., Critical Semiconductor Manufacturing Centers in Hsinchu, Taiwan",
+    help="Enter a specific commodity, resource, sourcing location, or research target to analyze (e.g. 'Lithium in Chile' or 'Semiconductors in Taiwan'). The system will dynamically evaluate climate and geopolitical physical hazards and regulatory risks."
 )
 
 if st.button("Generate Diagnostic Risk Report", type="primary"):
@@ -43,8 +44,20 @@ if st.button("Generate Diagnostic Risk Report", type="primary"):
             st.subheader("📋 Executive Mitigation Strategy Summary")
             st.markdown(final_output["final_synthesis"])
             
+            # Download button for the generated report
+            st.download_button(
+                label="📥 Download Report as TXT",
+                data=final_output["final_synthesis"],
+                file_name=f"risk_report_{target_input.replace(' ', '_').lower()}.txt",
+                mime="text/plain"
+            )
+            
             with st.expander("🔍 See Underlying Agent Diagnostic Transcripts"):
                 st.markdown("### Climate Stream Insights")
                 st.write(final_output["climate_analysis"])
                 st.markdown("### Geopolitical/Macro-Economic Stream Insights")
                 st.write(final_output["geopol_analysis"])
+
+# Subtle footer for author attribution
+st.markdown("---")
+st.caption("Developed by Mani Mantha")
