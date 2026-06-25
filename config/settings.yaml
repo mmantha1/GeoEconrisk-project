@@ -1,0 +1,40 @@
+# ==============================================================================
+# GEO-ECONOMIC RISK FORECASTER - GLOBAL SETTINGS & CONFIGURATION
+# ==============================================================================
+
+# LLM Framework Configuration
+llm:
+  provider: "google"
+  model_name: "gemini-2.5-flash"
+  temperature: 0.2          # Low temperature ensures deterministic, analytical outputs
+  max_tokens: 2000
+  timeout: 30               # API request timeout in seconds
+
+# Local or Cloud Vector Database Configuration
+vector_store:
+  provider: "qdrant"         # Options: qdrant, chroma, pinecone
+  host: "localhost"
+  port: 6333
+  collection_name: "geoecon_risk_indices_gemini"
+  embedding_model: "models/gemini-embedding-001"
+
+
+# Open-Source Third-Party Data API Configuration
+# (Actual API tokens should be loaded via environment variables; these map the base routes)
+api_endpoints:
+  world_bank: "https://worldbank.org"
+  un_comtrade: "https://un.org"
+  news_api: "https://newsapi.org"
+
+# Algorithmic Scoring Parameters
+# These weights govern how the Final Synthesizer Agent calculates the aggregate Risk Score
+risk_weight_matrix:
+  climate_physical_risk: 0.40      # Weight given to infrastructure and environmental factors
+  regulatory_tariff_friction: 0.35  # Weight given to trade barriers and policies
+  geopolitical_instability: 0.25    # Weight given to state-actor risks and regional conflict
+
+# System Log Settings
+logging:
+  level: "INFO"                     # Options: DEBUG, INFO, WARNING, ERROR
+  save_to_file: true
+  log_file_path: "logs/agent_execution.log"
