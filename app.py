@@ -141,6 +141,47 @@ elif st.session_state.workflow_step == 1:
         st.markdown("<h1 style='margin-top: 5px; margin-bottom: 0px;'>🌐 Geo-Economic Risk Forecaster</h1>", unsafe_allow_html=True)
         st.caption("Human-in-the-Loop Analyst Verification Step")
 
+    # Inject Custom CSS to style Approve (Green/Bold) & Cancel (Red/Bold) buttons
+    st.markdown("""
+        <style>
+        /* Style the Approve & Synthesize button (primary) to be Green & Bold */
+        button[data-testid="baseButton-primary"] {
+            background-color: #28a745 !important;
+            color: white !important;
+            border: 1px solid #28a745 !important;
+        }
+        button[data-testid="baseButton-primary"]:hover {
+            background-color: #218838 !important;
+            border-color: #1e7e34 !important;
+            color: white !important;
+        }
+        button[data-testid="baseButton-primary"] p, 
+        button[data-testid="baseButton-primary"] span, 
+        button[data-testid="baseButton-primary"] div {
+            font-weight: bold !important;
+            font-size: 1.05rem !important;
+        }
+
+        /* Style the Cancel Analysis button (secondary) to be Red & Bold */
+        button[data-testid="baseButton-secondary"] {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border: 1px solid #dc3545 !important;
+        }
+        button[data-testid="baseButton-secondary"]:hover {
+            background-color: #c82333 !important;
+            border-color: #bd2130 !important;
+            color: white !important;
+        }
+        button[data-testid="baseButton-secondary"] p, 
+        button[data-testid="baseButton-secondary"] span, 
+        button[data-testid="baseButton-secondary"] div {
+            font-weight: bold !important;
+            font-size: 1.05rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     thread_config = {"configurable": {"thread_id": st.session_state.thread_id}}
     state_info = compiled_graph.get_state(thread_config)
     
