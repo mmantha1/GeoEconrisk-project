@@ -29,6 +29,7 @@ if st.session_state.workflow_step == 0:
         st.image("assets/dashboard_banner.png", use_container_width=True)
     with col_title:
         st.markdown("<h1 style='margin-top: 5px; margin-bottom: 0px;'>🌐 Geo-Economic Risk Forecaster</h1>", unsafe_allow_html=True)
+        st.markdown("📋 *Conduct deep-dive research on global sourcing nodes, evaluate localized climate and geopolitical exposures, and compile synthesized risk intelligence reports.*")
         st.caption("Powered by Multi-Agent LangGraph Systems with Human-in-the-Loop Review")
 
     # Human Verification CAPTCHA widget (displayed first to verify user)
