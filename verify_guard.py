@@ -20,6 +20,7 @@ def run_test(prompt: str, label: str):
         "risk_score": 0.0,
         "confidence_level": None,
         "confidence_explanation": None,
+        "actionable_summary": None,
         "errors": []
     }
     

@@ -191,10 +191,12 @@ def supply_chain_synthesizer_node(state: AgenticState) -> dict:
     # Extract confidence rating & explanation
     confidence_level = extract_tag(response.content, "confidence_level", default="Medium")
     confidence_explanation = extract_tag(response.content, "confidence_explanation", default="Standard confidence based on available records.")
+    actionable_summary = extract_tag(response.content, "actionable_summary", default="")
     
-    # Clean synthesis of confidence XML tags
+    # Clean synthesis of confidence and actionable summary XML tags
     clean_synthesis = re.sub(r"<confidence_level>.*?</confidence_level>", "", response.content, flags=re.DOTALL)
-    clean_synthesis = re.sub(r"<confidence_explanation>.*?</confidence_explanation>", "", clean_synthesis, flags=re.DOTALL).strip()
+    clean_synthesis = re.sub(r"<confidence_explanation>.*?</confidence_explanation>", "", clean_synthesis, flags=re.DOTALL)
+    clean_synthesis = re.sub(r"<actionable_summary>.*?</actionable_summary>", "", clean_synthesis, flags=re.DOTALL).strip()
     
     calculated_score = round(
         (climate_severity * weights["climate_physical_risk"]) + 
@@ -208,6 +210,7 @@ def supply_chain_synthesizer_node(state: AgenticState) -> dict:
         "climate_analysis": clean_climate,
         "geopol_analysis": clean_geopol,
         "confidence_level": confidence_level,
-        "confidence_explanation": confidence_explanation
+        "confidence_explanation": confidence_explanation,
+        "actionable_summary": actionable_summary
     }
 

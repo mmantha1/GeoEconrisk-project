@@ -111,6 +111,7 @@ if st.session_state.workflow_step == 0:
                     "risk_score": 0.0,
                     "confidence_level": None,
                     "confidence_explanation": None,
+                    "actionable_summary": None,
                     "errors": []
                 }
                 
@@ -280,6 +281,13 @@ elif st.session_state.workflow_step == 2:
         
         # Small card explaining the confidence reasoning below metrics
         st.caption(f"ℹ️ **Confidence Assessment:** {final_output.get('confidence_explanation', 'No detailed reasoning provided.')}")
+        
+        # Actionable insights summary box at the top of results
+        actionable_summary = final_output.get("actionable_summary")
+        if actionable_summary:
+            with st.container(border=True):
+                st.markdown("🎯 **Key Actionable Research Insights** (Summary of Diversification & Routing)")
+                st.info(actionable_summary)
         
         st.subheader("📋 Executive Mitigation Strategy Summary")
         st.markdown(final_output["final_synthesis"])

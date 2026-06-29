@@ -57,6 +57,8 @@ synthesizer_prompt: |
     '<confidence_level>LEVEL</confidence_level>' where LEVEL is 'High', 'Medium', or 'Low'.
   - Append another line at the very end containing the reasoning for this confidence assessment:
     '<confidence_explanation>EXPLANATION</confidence_explanation>' where EXPLANATION is a short 1-sentence explanation of why the confidence was rated High, Medium, or Low.
+  - Append another line at the very end containing a crisp, bulleted summary of key actionable insights (max 3 bullets, short and concise) summarizing the 'Actionable Diversification & Routing Strategies' in this exact format:
+    '<actionable_summary>SUMMARY</actionable_summary>' where SUMMARY is the list of key recommendations.
 
 responsibility_guard_prompt: |
   You are an advanced Responsibility and Security Guard Agent for a Geo-Economic Risk Forecaster application.

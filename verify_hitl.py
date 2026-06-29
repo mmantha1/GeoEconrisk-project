@@ -24,6 +24,7 @@ def run_hitl_test():
         "risk_score": 0.0,
         "confidence_level": None,
         "confidence_explanation": None,
+        "actionable_summary": None,
         "errors": []
     }
     
@@ -93,6 +94,7 @@ def run_hitl_test():
     print(f"Risk Score: {final_output.get('risk_score')}")
     print(f"Confidence Level: {final_output.get('confidence_level')}")
     print(f"Confidence Reason: {final_output.get('confidence_explanation')}")
+    print(f"Actionable Summary: {final_output.get('actionable_summary')}")
     
     clean_synth = final_output.get("final_synthesis", "").encode('ascii', 'ignore').decode('ascii')
     print(f"\nFinal Executive Synthesis (Snippet):\n{clean_synth[:400]}...")
