@@ -51,6 +51,9 @@ synthesizer_prompt: |
   OUTPUT FORMAT RULES:
   - Your response must be an executive-level summary formatted as follows:
     '### Executive Summary'
+    Directly below the Executive Summary title and overview, you MUST include a subsection:
+    '#### Summary of Mitigation Actions:'
+    followed by a bulleted list of the top 3-4 high-level mitigation strategies.
     '### Intersectional Vulnerabilities' (Where climate and geopolitics clash)
     '### Actionable Diversification & Routing Strategies'
   - Append a line at the very end containing only the confidence rating in this exact format:

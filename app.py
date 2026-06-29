@@ -24,6 +24,27 @@ if "verified" not in st.session_state:
 # WORKFLOW STEP 0: Target Input & Human Verification CAPTCHA
 # ==============================================================================
 if st.session_state.workflow_step == 0:
+    # Inject Custom CSS to style primary button (Generate) to Blue & Bold
+    st.markdown("""
+        <style>
+        button[data-testid="baseButton-primary"] {
+            background-color: #007bff !important;
+            color: white !important;
+            border: 1px solid #007bff !important;
+        }
+        button[data-testid="baseButton-primary"]:hover {
+            background-color: #0056b3 !important;
+            border-color: #004085 !important;
+            color: white !important;
+        }
+        button[data-testid="baseButton-primary"] p, 
+        button[data-testid="baseButton-primary"] span, 
+        button[data-testid="baseButton-primary"] div {
+            font-weight: bold !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     col_img, col_title = st.columns([1, 6])
     with col_img:
         st.image("assets/dashboard_banner.png", use_container_width=True)
@@ -240,6 +261,46 @@ elif st.session_state.workflow_step == 1:
 # WORKFLOW STEP 2: Synthesis Results Display
 # ==============================================================================
 elif st.session_state.workflow_step == 2:
+    # Inject Custom CSS to style Clear button (secondary) to Cyan and Download button (primary) to Blue
+    st.markdown("""
+        <style>
+        /* Cyan styled secondary buttons (Clear & New Query) */
+        button[data-testid="baseButton-secondary"] {
+            background-color: #00ffff !important;
+            color: black !important;
+            border: 1px solid #00ffff !important;
+        }
+        button[data-testid="baseButton-secondary"]:hover {
+            background-color: #00cccc !important;
+            border-color: #009999 !important;
+            color: black !important;
+        }
+        button[data-testid="baseButton-secondary"] p, 
+        button[data-testid="baseButton-secondary"] span, 
+        button[data-testid="baseButton-secondary"] div {
+            font-weight: bold !important;
+            font-size: 1.15rem !important;
+        }
+        
+        /* Blue styled primary buttons (Download Report) */
+        button[data-testid="baseButton-primary"] {
+            background-color: #007bff !important;
+            color: white !important;
+            border: 1px solid #007bff !important;
+        }
+        button[data-testid="baseButton-primary"]:hover {
+            background-color: #0056b3 !important;
+            border-color: #004085 !important;
+            color: white !important;
+        }
+        button[data-testid="baseButton-primary"] p, 
+        button[data-testid="baseButton-primary"] span, 
+        button[data-testid="baseButton-primary"] div {
+            font-weight: bold !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     col_img, col_title = st.columns([1, 6])
     with col_img:
         st.image("assets/dashboard_banner.png", use_container_width=True)
@@ -299,7 +360,8 @@ elif st.session_state.workflow_step == 2:
                 label="📥 Download Report as TXT",
                 data=final_output["final_synthesis"],
                 file_name=f"risk_report_{target_input.replace(' ', '_').lower()}.txt",
-                mime="text/plain"
+                mime="text/plain",
+                type="primary"
             )
         with col_restart:
             if st.button("Start New Analysis", type="secondary"):
