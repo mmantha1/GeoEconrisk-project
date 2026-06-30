@@ -24,22 +24,22 @@ if "verified" not in st.session_state:
 # WORKFLOW STEP 0: Target Input & Human Verification CAPTCHA
 # ==============================================================================
 if st.session_state.workflow_step == 0:
-    # Inject Custom CSS to style primary button (Generate) to Blue & Bold
+    # Inject Custom CSS to style primary button (Generate) to Green & Bold
     st.markdown("""
         <style>
-        button[data-testid="baseButton-primary"] {
-            background-color: #007bff !important;
+        button[data-testid="baseButton-primary"], button[data-testid="stBaseButton-primary"] {
+            background-color: #28a745 !important;
             color: white !important;
-            border: 1px solid #007bff !important;
+            border: 1px solid #28a745 !important;
         }
-        button[data-testid="baseButton-primary"]:hover {
-            background-color: #0056b3 !important;
-            border-color: #004085 !important;
+        button[data-testid="baseButton-primary"]:hover, button[data-testid="stBaseButton-primary"]:hover {
+            background-color: #218838 !important;
+            border-color: #1e7e34 !important;
             color: white !important;
         }
-        button[data-testid="baseButton-primary"] p, 
-        button[data-testid="baseButton-primary"] span, 
-        button[data-testid="baseButton-primary"] div {
+        button[data-testid="baseButton-primary"] p, button[data-testid="stBaseButton-primary"] p,
+        button[data-testid="baseButton-primary"] span, button[data-testid="stBaseButton-primary"] span,
+        button[data-testid="baseButton-primary"] div, button[data-testid="stBaseButton-primary"] div {
             font-weight: bold !important;
         }
         </style>
@@ -168,37 +168,37 @@ elif st.session_state.workflow_step == 1:
     st.markdown("""
         <style>
         /* Style the Approve & Synthesize button (primary) to be Green & Bold */
-        button[data-testid="baseButton-primary"] {
+        button[data-testid="baseButton-primary"], button[data-testid="stBaseButton-primary"] {
             background-color: #28a745 !important;
             color: white !important;
             border: 1px solid #28a745 !important;
         }
-        button[data-testid="baseButton-primary"]:hover {
+        button[data-testid="baseButton-primary"]:hover, button[data-testid="stBaseButton-primary"]:hover {
             background-color: #218838 !important;
             border-color: #1e7e34 !important;
             color: white !important;
         }
-        button[data-testid="baseButton-primary"] p, 
-        button[data-testid="baseButton-primary"] span, 
-        button[data-testid="baseButton-primary"] div {
+        button[data-testid="baseButton-primary"] p, button[data-testid="stBaseButton-primary"] p,
+        button[data-testid="baseButton-primary"] span, button[data-testid="stBaseButton-primary"] span,
+        button[data-testid="baseButton-primary"] div, button[data-testid="stBaseButton-primary"] div {
             font-weight: bold !important;
             font-size: 1.05rem !important;
         }
 
         /* Style the Cancel Analysis button (secondary) to be Red & Bold */
-        button[data-testid="baseButton-secondary"] {
+        button[data-testid="baseButton-secondary"], button[data-testid="stBaseButton-secondary"] {
             background-color: #dc3545 !important;
             color: white !important;
             border: 1px solid #dc3545 !important;
         }
-        button[data-testid="baseButton-secondary"]:hover {
+        button[data-testid="baseButton-secondary"]:hover, button[data-testid="stBaseButton-secondary"]:hover {
             background-color: #c82333 !important;
             border-color: #bd2130 !important;
             color: white !important;
         }
-        button[data-testid="baseButton-secondary"] p, 
-        button[data-testid="baseButton-secondary"] span, 
-        button[data-testid="baseButton-secondary"] div {
+        button[data-testid="baseButton-secondary"] p, button[data-testid="stBaseButton-secondary"] p,
+        button[data-testid="baseButton-secondary"] span, button[data-testid="stBaseButton-secondary"] span,
+        button[data-testid="baseButton-secondary"] div, button[data-testid="stBaseButton-secondary"] div {
             font-weight: bold !important;
             font-size: 1.05rem !important;
         }
@@ -265,37 +265,37 @@ elif st.session_state.workflow_step == 2:
     st.markdown("""
         <style>
         /* Cyan styled secondary buttons (Clear & New Query) */
-        button[data-testid="baseButton-secondary"] {
+        button[data-testid="baseButton-secondary"], button[data-testid="stBaseButton-secondary"] {
             background-color: #00ffff !important;
             color: black !important;
             border: 1px solid #00ffff !important;
         }
-        button[data-testid="baseButton-secondary"]:hover {
+        button[data-testid="baseButton-secondary"]:hover, button[data-testid="stBaseButton-secondary"]:hover {
             background-color: #00cccc !important;
             border-color: #009999 !important;
             color: black !important;
         }
-        button[data-testid="baseButton-secondary"] p, 
-        button[data-testid="baseButton-secondary"] span, 
-        button[data-testid="baseButton-secondary"] div {
+        button[data-testid="baseButton-secondary"] p, button[data-testid="stBaseButton-secondary"] p,
+        button[data-testid="baseButton-secondary"] span, button[data-testid="stBaseButton-secondary"] span,
+        button[data-testid="baseButton-secondary"] div, button[data-testid="stBaseButton-secondary"] div {
             font-weight: bold !important;
             font-size: 1.15rem !important;
         }
         
         /* Blue styled primary buttons (Download Report) */
-        button[data-testid="baseButton-primary"] {
+        button[data-testid="baseButton-primary"], button[data-testid="stBaseButton-primary"] {
             background-color: #007bff !important;
             color: white !important;
             border: 1px solid #007bff !important;
         }
-        button[data-testid="baseButton-primary"]:hover {
+        button[data-testid="baseButton-primary"]:hover, button[data-testid="stBaseButton-primary"]:hover {
             background-color: #0056b3 !important;
             border-color: #004085 !important;
             color: white !important;
         }
-        button[data-testid="baseButton-primary"] p, 
-        button[data-testid="baseButton-primary"] span, 
-        button[data-testid="baseButton-primary"] div {
+        button[data-testid="baseButton-primary"] p, button[data-testid="stBaseButton-primary"] p,
+        button[data-testid="baseButton-primary"] span, button[data-testid="stBaseButton-primary"] span,
+        button[data-testid="baseButton-primary"] div, button[data-testid="stBaseButton-primary"] div {
             font-weight: bold !important;
         }
         </style>
