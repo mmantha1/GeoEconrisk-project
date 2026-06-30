@@ -4,7 +4,7 @@ import yaml
 
 # Automatically load environment variables from .env file if it exists
 if os.path.exists(".env"):
-    with open(".env", "r") as f:
+    with open(".env", "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
@@ -14,5 +14,5 @@ if os.path.exists(".env"):
 
 def load_settings(filepath="config/settings.yaml"):
     """Safely loads global system configuration parameters."""
-    with open(filepath, "r") as file:
+    with open(filepath, "r", encoding="utf-8") as file:
         return yaml.safe_load(file)

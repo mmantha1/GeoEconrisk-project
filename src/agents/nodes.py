@@ -20,7 +20,7 @@ llm = ChatGoogleGenerativeAI(
     temperature=config["llm"]["temperature"]
 )
 
-with open("config/prompts.yaml", "r") as f:
+with open("config/prompts.yaml", "r", encoding="utf-8") as f:
     PROMPTS = yaml.safe_load(f)
 
 def extract_country_iso(prompt: str) -> str:
