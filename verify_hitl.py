@@ -25,6 +25,8 @@ def run_hitl_test():
         "confidence_level": None,
         "confidence_explanation": None,
         "actionable_summary": None,
+        "latencies": [],
+        "api_statuses": [],
         "errors": []
     }
     
@@ -95,6 +97,8 @@ def run_hitl_test():
     print(f"Confidence Level: {final_output.get('confidence_level')}")
     print(f"Confidence Reason: {final_output.get('confidence_explanation')}")
     print(f"Actionable Summary: {final_output.get('actionable_summary')}")
+    print(f"Latencies: {final_output.get('latencies')}")
+    print(f"API/RAG Statuses: {final_output.get('api_statuses')}")
     
     clean_synth = final_output.get("final_synthesis", "").encode('ascii', 'ignore').decode('ascii')
     print(f"\nFinal Executive Synthesis (Snippet):\n{clean_synth[:400]}...")

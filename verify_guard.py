@@ -21,6 +21,8 @@ def run_test(prompt: str, label: str):
         "confidence_level": None,
         "confidence_explanation": None,
         "actionable_summary": None,
+        "latencies": [],
+        "api_statuses": [],
         "errors": []
     }
     

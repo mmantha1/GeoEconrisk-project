@@ -1,4 +1,5 @@
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Annotated
+import operator
 
 class AgenticState(TypedDict):
     """Defines the memory dictionary shared across all multi-agent steps."""
@@ -10,4 +11,6 @@ class AgenticState(TypedDict):
     confidence_level: Optional[str] # System confidence rating (High, Medium, Low)
     confidence_explanation: Optional[str] # Explanation/reasoning for the confidence rating
     actionable_summary: Optional[str] # Crisp summary of actionable research insights
+    latencies: Annotated[List[str], operator.add] # Node execution latencies
+    api_statuses: Annotated[List[str], operator.add] # Live API/RAG grounding statuses
     errors: List[str]               # Tracks processing exceptions or structural loops

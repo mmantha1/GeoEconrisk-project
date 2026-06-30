@@ -47,6 +47,8 @@ def responsibility_guard_node(state: AgenticState) -> dict:
     """Evaluates input query safety, injection, crash prevention, and relevance using Gemini."""
     import json
     import re
+    import time
+    start_time = time.time()
     target = state["target_node"]
     
     system_prompt = PROMPTS["responsibility_guard_prompt"]
@@ -75,6 +77,7 @@ def responsibility_guard_node(state: AgenticState) -> dict:
             is_safe = False
             reason = "Potential safety violation or injection attempt flagged by responsibility system."
             
+    elapsed = round(time.time() - start_time, 2)
     if not is_safe:
         warning_msg = f"""### ⚠️ Safety Warning: Request Blocked
 
@@ -88,21 +91,36 @@ If you believe this was in error, please rephrase your research target to refer 
             "final_synthesis": warning_msg,
             "risk_score": 0.0,
             "confidence_level": "N/A",
-            "confidence_explanation": "Execution blocked by responsibility guard."
+            "confidence_explanation": "Execution blocked by responsibility guard.",
+            "latencies": [f"Responsibility Guard Node: {elapsed}s"],
+            "api_statuses": ["Responsibility Guard: Flagged & Blocked Query"]
         }
         
-    return {"errors": []}
+    return {
+        "errors": [],
+        "latencies": [f"Responsibility Guard Node: {elapsed}s"],
+        "api_statuses": ["Responsibility Guard: Active & Passed Query"]
+    }
 
 def climate_analyst_node(state: AgenticState) -> dict:
     """Queries vector indices for local research papers to calculate physical exposures."""
+    import time
+    start_time = time.time()
     target = state["target_node"]
     
-    # Fetch real contextual data from your Qdrant Vector Store
+    # Fetch real contextual data from your Qdrant Vector Store and monitor status
+    api_status = ""
     try:
         db_context_list = vdb.query_semantic_context(f"Climate hazards for {target}", limit=2)
-        db_context = "\n".join(db_context_list) if db_context_list else "No localized document records found."
+        if db_context_list:
+            db_context = "\n".join(db_context_list)
+            api_status = "Qdrant Vector Database: Connected (Grounding matches retrieved)"
+        else:
+            db_context = "No localized document records found."
+            api_status = "Qdrant Vector Database: Connected (No matching records, using Parametric Fallback)"
     except Exception as e:
         db_context = f"Vector DB Retrieval bypassed: {str(e)}"
+        api_status = f"Qdrant Vector Database: Offline/Bypassed (Error: {str(e)[:50]})"
     
     system_prompt = PROMPTS["climate_analyst_prompt"]
     user_prompt = f"""
@@ -114,18 +132,45 @@ def climate_analyst_node(state: AgenticState) -> dict:
     """
     
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)])
-    return {"climate_analysis": response.content}
+    elapsed = round(time.time() - start_time, 2)
+    return {
+        "climate_analysis": response.content,
+        "latencies": [f"Climate Analyst Node: {elapsed}s"],
+        "api_statuses": [api_status]
+    }
 
 def geopol_analyst_node(state: AgenticState) -> dict:
     """Queries the World Bank and UN Comtrade APIs to assess systemic macro stability."""
+    import time
+    start_time = time.time()
     target = state["target_node"]
     
     # Dynamically extract country ISO code using the LLM helper
     country_iso = extract_country_iso(target)
             
-    # Fetch live financial metrics and trade volumes from your API tools
-    macro_data = get_country_macro_metrics(country_iso)
-    trade_data = get_bilateral_trade_flows(reporter_iso=country_iso, commodity_code="TOTAL")
+    # Fetch live financial metrics and check World Bank status
+    wb_status = ""
+    try:
+        macro_data = get_country_macro_metrics(country_iso)
+        if "API Error" in str(macro_data) or not macro_data:
+            wb_status = f"World Bank API ({country_iso}): Offline/Bypassed (API returned empty/error)"
+        else:
+            wb_status = f"World Bank API ({country_iso}): Connected (Macro stability metrics retrieved)"
+    except Exception as e:
+        macro_data = f"Bypassed due to error: {str(e)}"
+        wb_status = f"World Bank API ({country_iso}): Offline/Bypassed (Error: {str(e)[:50]})"
+        
+    # Fetch live trade volumes and check UN Comtrade status
+    comtrade_status = ""
+    try:
+        trade_data = get_bilateral_trade_flows(reporter_iso=country_iso, commodity_code="TOTAL")
+        if "API Error" in str(trade_data) or not trade_data:
+            comtrade_status = f"UN Comtrade API ({country_iso}): Offline/Bypassed (API returned empty/error)"
+        else:
+            comtrade_status = f"UN Comtrade API ({country_iso}): Connected (Bilateral trade volume retrieved)"
+    except Exception as e:
+        trade_data = f"Bypassed due to error: {str(e)}"
+        comtrade_status = f"UN Comtrade API ({country_iso}): Offline/Bypassed (Error: {str(e)[:50]})"
     
     system_prompt = PROMPTS["geopol_analyst_prompt"]
     user_prompt = f"""
@@ -137,11 +182,18 @@ def geopol_analyst_node(state: AgenticState) -> dict:
     """
     
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)])
-    return {"geopol_analysis": response.content}
+    elapsed = round(time.time() - start_time, 2)
+    return {
+        "geopol_analysis": response.content,
+        "latencies": [f"Geopolitical Analyst Node: {elapsed}s"],
+        "api_statuses": [wb_status, comtrade_status]
+    }
 
 def supply_chain_synthesizer_node(state: AgenticState) -> dict:
     """Combines upstream data feeds to score composite fragility and plan routing paths."""
     import re
+    import time
+    start_time = time.time()
     
     def extract_severity_score(text: str, default: float = 5.0) -> float:
         if not text:
@@ -204,6 +256,7 @@ def supply_chain_synthesizer_node(state: AgenticState) -> dict:
         2
     )
     
+    elapsed = round(time.time() - start_time, 2)
     return {
         "final_synthesis": clean_synthesis, 
         "risk_score": calculated_score,
@@ -211,6 +264,7 @@ def supply_chain_synthesizer_node(state: AgenticState) -> dict:
         "geopol_analysis": clean_geopol,
         "confidence_level": confidence_level,
         "confidence_explanation": confidence_explanation,
-        "actionable_summary": actionable_summary
+        "actionable_summary": actionable_summary,
+        "latencies": [f"Synthesis Engine Node: {elapsed}s"]
     }
 

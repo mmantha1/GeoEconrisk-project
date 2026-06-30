@@ -133,6 +133,8 @@ if st.session_state.workflow_step == 0:
                     "confidence_level": None,
                     "confidence_explanation": None,
                     "actionable_summary": None,
+                    "latencies": [],
+                    "api_statuses": [],
                     "errors": []
                 }
                 
@@ -375,6 +377,25 @@ elif st.session_state.workflow_step == 2:
             st.write(final_output["climate_analysis"])
             st.markdown("### Geopolitical/Macro-Economic Stream Insights")
             st.write(final_output["geopol_analysis"])
+            
+        with st.expander("⚙️ Pipeline Observability & API Health Diagnostics"):
+            col_obs1, col_obs2 = st.columns(2)
+            with col_obs1:
+                st.markdown("#### ⏱️ Pipeline Latency Breakdown")
+                latencies = final_output.get("latencies", [])
+                if latencies:
+                    for latency in latencies:
+                        st.markdown(f"- {latency}")
+                else:
+                    st.markdown("*No latency logs registered.*")
+            with col_obs2:
+                st.markdown("#### 📡 API Connection & Grounding Status")
+                api_statuses = final_output.get("api_statuses", [])
+                if api_statuses:
+                    for status in api_statuses:
+                        st.markdown(f"- {status}")
+                else:
+                    st.markdown("*No API statuses registered.*")
 
     # Subtle footer
     st.markdown("---")
