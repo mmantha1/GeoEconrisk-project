@@ -135,6 +135,9 @@ if st.session_state.workflow_step == 0:
                     "actionable_summary": None,
                     "latencies": [],
                     "api_statuses": [],
+                    "input_tokens": 0,
+                    "output_tokens": 0,
+                    "hitl_impact": None,
                     "errors": []
                 }
                 
@@ -233,12 +236,51 @@ elif st.session_state.workflow_step == 1:
     with col_btn1:
         if st.button("Approve & Synthesize", type="primary"):
             with st.spinner("Updating workflow checkpoint and generating executive summary..."):
-                # Feed human edits back into the graph state
+                import difflib
+                
+                def get_hitl_stats(orig, edited):
+                    orig_str = orig or ""
+                    edited_str = edited or ""
+                    matcher = difflib.SequenceMatcher(None, orig_str, edited_str)
+                    added = 0
+                    removed = 0
+                    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+                        if tag == 'replace':
+                            added += (j2 - j1)
+                            removed += (i2 - i1)
+                        elif tag == 'delete':
+                            removed += (i2 - i1)
+                        elif tag == 'insert':
+                            added += (j2 - j1)
+                    return added, removed, matcher.ratio()
+
+                c_add, c_rem, c_ratio = get_hitl_stats(climate_feed, edited_climate)
+                g_add, g_rem, g_ratio = get_hitl_stats(geopol_feed, edited_geopol)
+                
+                total_add = c_add + g_add
+                total_rem = c_rem + g_rem
+                total_orig_len = len(climate_feed or "") + len(geopol_feed or "")
+                
+                if total_orig_len > 0:
+                    avg_ratio = (c_ratio * len(climate_feed or "") + g_ratio * len(geopol_feed or "")) / total_orig_len
+                else:
+                    avg_ratio = 1.0
+                    
+                impact_score = round((1.0 - avg_ratio) * 100, 1)
+                hitl_impact_metrics = {
+                    "edits_made": (total_add > 0 or total_rem > 0),
+                    "chars_added": total_add,
+                    "chars_removed": total_rem,
+                    "impact_score": impact_score
+                }
+
+                # Feed human edits back into the graph state along with HITL metrics
                 compiled_graph.update_state(
                     thread_config, 
                     {
                         "climate_analysis": edited_climate, 
-                        "geopol_analysis": edited_geopol
+                        "geopol_analysis": edited_geopol,
+                        "hitl_impact": hitl_impact_metrics
                     },
                     as_node="GeopolAnalyst"
                 )
@@ -388,6 +430,16 @@ elif st.session_state.workflow_step == 2:
                         st.markdown(f"- {latency}")
                 else:
                     st.markdown("*No latency logs registered.*")
+                
+                st.markdown("#### 🪙 Token Audit & Estimated Run Cost")
+                in_t = final_output.get("input_tokens", 0)
+                out_t = final_output.get("output_tokens", 0)
+                cost = (in_t * 0.075 / 1000000) + (out_t * 0.30 / 1000000)
+                st.markdown(f"- **Input Tokens**: `{in_t:,}`")
+                st.markdown(f"- **Output Tokens**: `{out_t:,}`")
+                st.markdown(f"- **Total Tokens**: `{in_t + out_t:,}`")
+                st.markdown(f"- **Estimated API Run Cost**: `${cost:.5f} USD` (Gemini 2.5 Flash)")
+                
             with col_obs2:
                 st.markdown("#### 📡 API Connection & Grounding Status")
                 api_statuses = final_output.get("api_statuses", [])
@@ -396,6 +448,15 @@ elif st.session_state.workflow_step == 2:
                         st.markdown(f"- {status}")
                 else:
                     st.markdown("*No API statuses registered.*")
+                
+                st.markdown("#### 🧑‍💻 Human-in-the-Loop Impact")
+                hitl_impact = final_output.get("hitl_impact")
+                if hitl_impact and hitl_impact.get("edits_made"):
+                    st.markdown("- **Human Edits Incorporated**: Yes")
+                    st.markdown(f"- **Modification Score**: `{hitl_impact['impact_score']}%` similarity shift")
+                    st.markdown(f"- **Content Delta**: `+{hitl_impact['chars_added']}` characters, `-{hitl_impact['chars_removed']}` removed")
+                else:
+                    st.markdown("- **Human Edits Incorporated**: No (Drafts approved as-is)")
 
     # Subtle footer
     st.markdown("---")

@@ -23,8 +23,8 @@ llm = ChatGoogleGenerativeAI(
 with open("config/prompts.yaml", "r", encoding="utf-8") as f:
     PROMPTS = yaml.safe_load(f)
 
-def extract_country_iso(prompt: str) -> str:
-    """Uses Gemini to identify the primary country in the prompt and returns its 3-letter ISO code."""
+def extract_country_iso(prompt: str) -> tuple:
+    """Uses Gemini to identify the primary country in the prompt and returns its 3-letter ISO code and token usage."""
     system_message = (
         "You are an expert geographical data assistant. Identify the primary country mentioned in the user's query "
         "and output ONLY its 3-letter ISO 3166-1 alpha-3 code (e.g., USA, TWN, CHL, DEU, IRN). "
@@ -37,11 +37,14 @@ def extract_country_iso(prompt: str) -> str:
             HumanMessage(content=prompt)
         ])
         iso = response.content.strip().replace('"', '').replace("'", "").upper()
+        usage = getattr(response, "usage_metadata", None) or {}
+        in_t = usage.get("input_tokens", 0)
+        out_t = usage.get("output_tokens", 0)
         if len(iso) == 3 and iso.isalpha():
-            return iso
+            return iso, in_t, out_t
     except Exception as e:
         print(f"Error in country ISO extraction: {e}")
-    return "USA"
+    return "USA", 0, 0
 
 def responsibility_guard_node(state: AgenticState) -> dict:
     """Evaluates input query safety, injection, crash prevention, and relevance using Gemini."""
@@ -77,6 +80,10 @@ def responsibility_guard_node(state: AgenticState) -> dict:
             is_safe = False
             reason = "Potential safety violation or injection attempt flagged by responsibility system."
             
+    usage = getattr(response, "usage_metadata", None) or {} if 'response' in locals() else {}
+    in_t = usage.get("input_tokens", 0)
+    out_t = usage.get("output_tokens", 0)
+    
     elapsed = round(time.time() - start_time, 2)
     if not is_safe:
         warning_msg = f"""### ⚠️ Safety Warning: Request Blocked
@@ -93,13 +100,17 @@ If you believe this was in error, please rephrase your research target to refer 
             "confidence_level": "N/A",
             "confidence_explanation": "Execution blocked by responsibility guard.",
             "latencies": [f"Responsibility Guard Node: {elapsed}s"],
-            "api_statuses": ["Responsibility Guard: Flagged & Blocked Query"]
+            "api_statuses": ["Responsibility Guard: Flagged & Blocked Query"],
+            "input_tokens": in_t,
+            "output_tokens": out_t
         }
         
     return {
         "errors": [],
         "latencies": [f"Responsibility Guard Node: {elapsed}s"],
-        "api_statuses": ["Responsibility Guard: Active & Passed Query"]
+        "api_statuses": ["Responsibility Guard: Active & Passed Query"],
+        "input_tokens": in_t,
+        "output_tokens": out_t
     }
 
 def climate_analyst_node(state: AgenticState) -> dict:
@@ -132,11 +143,17 @@ def climate_analyst_node(state: AgenticState) -> dict:
     """
     
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)])
+    usage = getattr(response, "usage_metadata", None) or {}
+    in_t = usage.get("input_tokens", 0)
+    out_t = usage.get("output_tokens", 0)
+    
     elapsed = round(time.time() - start_time, 2)
     return {
         "climate_analysis": response.content,
         "latencies": [f"Climate Analyst Node: {elapsed}s"],
-        "api_statuses": [api_status]
+        "api_statuses": [api_status],
+        "input_tokens": in_t,
+        "output_tokens": out_t
     }
 
 def geopol_analyst_node(state: AgenticState) -> dict:
@@ -145,8 +162,8 @@ def geopol_analyst_node(state: AgenticState) -> dict:
     start_time = time.time()
     target = state["target_node"]
     
-    # Dynamically extract country ISO code using the LLM helper
-    country_iso = extract_country_iso(target)
+    # Dynamically extract country ISO code and token usage using the LLM helper
+    country_iso, iso_in_t, iso_out_t = extract_country_iso(target)
             
     # Fetch live financial metrics and check World Bank status
     wb_status = ""
@@ -182,11 +199,17 @@ def geopol_analyst_node(state: AgenticState) -> dict:
     """
     
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)])
+    usage = getattr(response, "usage_metadata", None) or {}
+    in_t = usage.get("input_tokens", 0) + iso_in_t
+    out_t = usage.get("output_tokens", 0) + iso_out_t
+    
     elapsed = round(time.time() - start_time, 2)
     return {
         "geopol_analysis": response.content,
         "latencies": [f"Geopolitical Analyst Node: {elapsed}s"],
-        "api_statuses": [wb_status, comtrade_status]
+        "api_statuses": [wb_status, comtrade_status],
+        "input_tokens": in_t,
+        "output_tokens": out_t
     }
 
 def supply_chain_synthesizer_node(state: AgenticState) -> dict:
@@ -239,6 +262,9 @@ def supply_chain_synthesizer_node(state: AgenticState) -> dict:
     """
     
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)])
+    usage = getattr(response, "usage_metadata", None) or {}
+    in_t = usage.get("input_tokens", 0)
+    out_t = usage.get("output_tokens", 0)
     
     # Extract confidence rating & explanation
     confidence_level = extract_tag(response.content, "confidence_level", default="Medium")
@@ -265,6 +291,8 @@ def supply_chain_synthesizer_node(state: AgenticState) -> dict:
         "confidence_level": confidence_level,
         "confidence_explanation": confidence_explanation,
         "actionable_summary": actionable_summary,
-        "latencies": [f"Synthesis Engine Node: {elapsed}s"]
+        "latencies": [f"Synthesis Engine Node: {elapsed}s"],
+        "input_tokens": in_t,
+        "output_tokens": out_t
     }
 

@@ -13,4 +13,7 @@ class AgenticState(TypedDict):
     actionable_summary: Optional[str] # Crisp summary of actionable research insights
     latencies: Annotated[List[str], operator.add] # Node execution latencies
     api_statuses: Annotated[List[str], operator.add] # Live API/RAG grounding statuses
+    input_tokens: Annotated[int, operator.add] # Total accumulated input tokens
+    output_tokens: Annotated[int, operator.add] # Total accumulated output tokens
+    hitl_impact: Optional[dict]     # Metrics representing the impact of human edits
     errors: List[str]               # Tracks processing exceptions or structural loops

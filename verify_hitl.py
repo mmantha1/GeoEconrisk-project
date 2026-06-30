@@ -27,6 +27,9 @@ def run_hitl_test():
         "actionable_summary": None,
         "latencies": [],
         "api_statuses": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "hitl_impact": None,
         "errors": []
     }
     
@@ -61,11 +64,47 @@ def run_hitl_test():
     edited_geopol = geopol_feed + " [HUMAN_EDIT: Chile's new mining tax legislation has been ratified, increasing operational friction.]"
     
     print("\n[Phase 2] Simulating human edits and updating graph state...")
+    import difflib
+    def get_hitl_stats(orig, edited):
+        orig_str = orig or ""
+        edited_str = edited or ""
+        matcher = difflib.SequenceMatcher(None, orig_str, edited_str)
+        added = 0
+        removed = 0
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == 'replace':
+                added += (j2 - j1)
+                removed += (i2 - i1)
+            elif tag == 'delete':
+                removed += (i2 - i1)
+            elif tag == 'insert':
+                added += (j2 - j1)
+        return added, removed, matcher.ratio()
+
+    c_add, c_rem, c_ratio = get_hitl_stats(climate_feed, edited_climate)
+    g_add, g_rem, g_ratio = get_hitl_stats(geopol_feed, edited_geopol)
+    
+    total_add = c_add + g_add
+    total_rem = c_rem + g_rem
+    total_orig_len = len(climate_feed or "") + len(geopol_feed or "")
+    if total_orig_len > 0:
+        avg_ratio = (c_ratio * len(climate_feed or "") + g_ratio * len(geopol_feed or "")) / total_orig_len
+    else:
+        avg_ratio = 1.0
+    impact_score = round((1.0 - avg_ratio) * 100, 1)
+    hitl_impact_metrics = {
+        "edits_made": (total_add > 0 or total_rem > 0),
+        "chars_added": total_add,
+        "chars_removed": total_rem,
+        "impact_score": impact_score
+    }
+
     compiled_graph.update_state(
         config,
         {
             "climate_analysis": edited_climate,
-            "geopol_analysis": edited_geopol
+            "geopol_analysis": edited_geopol,
+            "hitl_impact": hitl_impact_metrics
         },
         as_node="GeopolAnalyst"
     )
@@ -99,6 +138,12 @@ def run_hitl_test():
     print(f"Actionable Summary: {final_output.get('actionable_summary')}")
     print(f"Latencies: {final_output.get('latencies')}")
     print(f"API/RAG Statuses: {final_output.get('api_statuses')}")
+    in_t = final_output.get("input_tokens", 0)
+    out_t = final_output.get("output_tokens", 0)
+    cost = (in_t * 0.075 / 1000000) + (out_t * 0.30 / 1000000)
+    print(f"Token Consumption: Input {in_t:,} | Output {out_t:,} | Total {in_t + out_t:,}")
+    print(f"Estimated Cost: ${cost:.5f} USD")
+    print(f"HITL Impact Score: {final_output.get('hitl_impact')}")
     
     clean_synth = final_output.get("final_synthesis", "").encode('ascii', 'ignore').decode('ascii')
     print(f"\nFinal Executive Synthesis (Snippet):\n{clean_synth[:400]}...")
